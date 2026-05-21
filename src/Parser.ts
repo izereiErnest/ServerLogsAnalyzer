@@ -99,7 +99,7 @@ function parseTimeStamp(
       [combined, 2],
       [token, 1],
     ] as [string, number][]) {
-      if (!pattern.test(candidate)) continue;  // ← add this
+      if (!pattern.test(candidate)) continue;
       try {
         const date = parse(candidate);
         if (!isNaN(date.getTime())) {
