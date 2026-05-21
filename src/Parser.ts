@@ -87,30 +87,31 @@ const TimeStampFormats: TimestampParser[] = [
 ];
 
 const EPOCH_RE = /^\d{10}(\.\d+)?$/;
-const DATE_PREFIX_RE = /^\d{4}[-/]\d{2}[-/]\d{2}|^\d{2}-[A-Za-z]{3}-\d{4}/;
 
 function parseTimeStamp(
-    token: string,
-    nextToken =""
-): {date: Date | null; consumed: number }{
-    const combined = nextToken ? `${token} ${nextToken}` : token;
+  token: string,
+  nextToken = ""
+): { date: Date | null; consumed: number } {
+  const combined = nextToken ? `${token} ${nextToken}` : token;
 
-    for (const { pattern, parse } of TimeStampFormats){
-        //try combined TwoToken 1stLy
-        for (const [candidate, consumed] of [[combined, 2], [token, 1],
-        ] as [string, number][]){
-            try {
-               const date = parse(candidate);
-               if (!isNaN(date.getTime())) {
-                   return{date, consumed};
-               }
-            }catch{
-                //try nxt
-            }
+  for (const { pattern, parse } of TimeStampFormats) {
+    for (const [candidate, consumed] of [
+      [combined, 2],
+      [token, 1],
+    ] as [string, number][]) {
+      if (!pattern.test(candidate)) continue;  // ← add this
+      try {
+        const date = parse(candidate);
+        if (!isNaN(date.getTime())) {
+          return { date, consumed };
         }
+      } catch {
+        // try next
+      }
     }
-}
-return {date: null, consumed: 0};
+  }
+
+  return { date: null, consumed: 0 };
 }
 
 //--Response time Parser--
@@ -261,7 +262,7 @@ function tokenise(line: string): string[] {
     let inQuote: string | null = null;
 
     for (const ch of line) {
-        if((ch === "" || ch === "'") && isQuote === null) {
+        if((ch === "" || ch === "'") && inQuote === null) {
             inQuote = ch;
             current += ch;
         }else if(ch === inQuote) {
