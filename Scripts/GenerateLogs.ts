@@ -130,9 +130,7 @@ function makeVariantLine(d: Date, rand: () => number): string {
     } else if (variant === 1) {
         return `${fmtTimestampNormal(d)} ${ip} ${method} ${ep} ${status} ${fmtRtVariant(ms, rand)}`;
     } else if (variant === 2) {
-        const statusStr = rand() < 0.5 ? "-" : "";
-        if (!statusStr) return `${fmtTimestampNormal(d)} ${ip} ${method} ${ep} ${fmtRtNormal(ms)}`;
-        return `${fmtTimestampNormal(d)} ${ip} ${method} ${ep} ${statusStr} ${fmtRtNormal(ms)}`;
+        return `${fmtTimestampNormal(d)} ${ip} ${method} ${ep} ${status} ${fmtRtVariant(ms, rand)}`;
     } else if (variant === 3) {
         const ua = USER_AGENTS[Math.floor(rand() * USER_AGENTS.length)];
         const ref = REFERRERS[Math.floor(rand() * REFERRERS.length)];

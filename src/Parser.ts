@@ -32,14 +32,14 @@ type TimestampParser = {
 const TimeStampFormats: TimestampParser[] = [
   //1stLy, ISO 8601 with Z
   {
-    pattern: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/,
+        pattern: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/,
     parse: (s) => new Date(s),
   },
   //2ndLy, ISO 8601 with offset
-  {
-    pattern: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/,
-    parse: (s) => new Date(s),
-  },
+    {
+        pattern: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?[+-]\d{2}:\d{2}$/,
+        parse: (s) => new Date(s),
+    },
   //3rdLy, YYYY/MM/DD HH:MM:SS
   {
     pattern: /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}$/,
@@ -127,10 +127,10 @@ function parseResponseTime(
     if (m) return {ms: parseFloat(m[1]), anomaly: null};
 
     m = ResponseTimeSecsRegex.exec(token);
-    if (m) return {ms: parseFloat(m[1]) * 1000, anomaly: "Response_Time_In_Seconds"};
+    if (m) return {ms: parseFloat(m[1]) * 1000, anomaly: "seconds"};
 
     m = ResponseTimeIntegerRegex.exec(token);
-    if (m) return { ms: parseFloat(token), anomaly: "Response_Time_Bare_Integer" };
+    if (m) return { ms: parseFloat(token), anomaly: "bare_integer" };
 
     return {ms: null, anomaly: null};
 }
@@ -162,6 +162,7 @@ const JSONFieldMap: Record<string, string> = {
     ts: "timestamp",
     "@timestamp": "timestamp",
     remoteAddr: "ip",
+    remote_addr: "ip",
     src: "ip",
     client: "ip",
     ip: "ip",
@@ -171,9 +172,12 @@ const JSONFieldMap: Record<string, string> = {
     uri: "path",
     status: "status",
     statusCode: "status",
+    status_code: "status",
     respCode: "status",
+    resp_code: "status",
     responseCode: "status",
     durationMillis: "response_ms",
+    duration_ms: "response_ms",
     ms: "response_ms",
     duration: "response_ms",
     responseTime: "response_ms",
@@ -262,23 +266,23 @@ function tokenise(line: string): string[] {
     let inQuote: string | null = null;
 
     for (const ch of line) {
-        if((ch === "" || ch === "'") && inQuote === null) {
+        if ((ch === '"' || ch === "'") && inQuote === null) {
             inQuote = ch;
             current += ch;
-        }else if(ch === inQuote) {
+        } else if (ch === inQuote) {
             inQuote = null;
             current += ch;
-        }else if (ch === " " && inQuote === null) {
+        } else if (ch === ' ' && inQuote === null) {
             if (current) {
                 tokens.push(current);
                 current = "";
             }
-        }else {
+        } else {
             current += ch;
         }
     }
     if (current) tokens.push(current);
-    return tokens. filter(Boolean);
+    return tokens.filter(Boolean);
 }
 
 // -- Main Line Parser --
