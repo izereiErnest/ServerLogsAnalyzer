@@ -183,9 +183,6 @@ function generateLog(nLines: number, seed: number): string[] {
     return lines;
 }
 
-// ---------------------------------------------------------------------------
-// CLI
-// ---------------------------------------------------------------------------
 
 function main() {
     const argv = process.argv.slice(2);
